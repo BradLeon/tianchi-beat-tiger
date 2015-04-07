@@ -1,0 +1,92 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr 06 11:42:57 2015
+
+@author: hp
+"""
+import numpy as np
+import csv
+def percentInteractionOfCategory():
+        userId=[]; itemId=[];behaviorType=[]; category=[];time=[]
+        fr= open("D:\\tianchi_bigdata\\tianchi_mobile_recommend_train_user\\training_user_set.txt",'rb')     
+        for line in fr.readlines():
+           
+            curLine=line.strip().split('\t')
+            userId.append(str(curLine[0]))  
+            itemId.append(str(curLine[1]))
+            behaviorType.append(str(curLine[2]))
+            category.append(str(curLine[3]))
+            time.append(str(curLine[-1])) 
+     
+        buyTime=[];buyItem=[];buyCategory=[]
+        cartTime=[];cartItem=[];cartCategory=[]
+        collectTime=[];collectItem=[];collectCategory=[]
+        clickTime=[];clickItem=[];clickCategory=[]
+        for i  in range(len(behaviorType)):
+           if behaviorType[i]== '4':
+                buyTime.append(time[i])
+                buyItem.append(itemId[i])
+                buyCategory.append(category[i])
+           elif behaviorType[i]== '3':
+                cartTime.append(time[i])
+                cartItem.append(itemId[i])
+                cartCategory.append(category[i])
+           elif behaviorType[i]== '2':
+                collectTime.append(time[i])
+                collectItem.append(itemId[i])
+                collectCategory.append(category[i])
+           else:
+                clickTime.append(time[i])
+                clickItem.append(itemId[i])
+                clickCategory.append(category[i])
+           
+           percentItemofCategory1=countPercentInteraction(buyItem,buyCategory)
+           percentItemofCategory1=dict_to_list(percentItemofCategory1)
+           writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\percentItemOfCategorybuy.csv',percentItemofCategory1)
+           
+           percentItemofCategory2=countPercentInteraction(cartItem,cartCategory)
+           percentItemofCategory2=dict_to_list(percentItemofCategory2)
+           writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\percentItemOfCategorycart.csv',percentItemofCategory2)
+           
+           percentItemofCategory3=countPercentInteraction(collectItem,collectCategory)
+           percentItemofCategory3=dict_to_list(percentItemofCategory3)
+           writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\percentItemOfCategorycollect.csv',percentItemofCategory3)
+           
+           percentItemofCategory4=countPercentInteraction(clickItem,clickCategory)
+           percentItemofCategory4=dict_to_list(percentItemofCategory4)
+           writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\percentItemOfCategoryclick.csv',percentItemofCategory4)
+         
+def countPercentInteraction(item,category):
+    countCate={};countItem={};item_cate={};percentItem={}
+    for i in range(len(item)):       #initial
+        countCate[category[i]]=0
+        countItem[item[i]]=0
+       
+    
+    for j in range(len(item)):
+        countCate[category[j]]+=1
+        countItem[item[j]]+=1
+        item_cate[item[j]]=category[j]
+     
+        
+    for k in range(len(item_cate)):
+        percentItem[item_cate.keys()[k]]=float((countItem[item_cate.keys()[k]]+.0)/countCate[item_cate[item[k]]])                                                                                                                               
+    return  percentItem
+    
+def dict_to_list(Dict):         #dict 化为list 型
+    List= []
+    for key, value in Dict.iteritems():
+        if (type(value) is dict):
+            value = dict_to_list(value)
+        List.append([key, value])
+    return List
+
+
+def writerToFile(fileName,List):
+    csv.register_dialect('mydialect',delimiter=']' )
+    myFile=open(fileName,'wb')  
+    myWriter=csv.writer(myFile)    
+    myWriter.writerows(List)   
+    
+
+percentInteractionOfCategory()
