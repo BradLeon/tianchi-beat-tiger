@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr 06 17:15:58 2015
+
+@author: hp
+"""
+import csv
+import numpy as np
+import pandas as pd
+def user_itemInteractLast():
+        userId=[]; itemId=[];behaviorType=[]; time=[]
+        myFile=file('D:\\tianchi_bigdata\\training_user_set.csv','rb')
+        reader=csv.reader(myFile)
+        for line in reader:  
+            userId.append(str(line[0]))  
+            itemId.append(str(line[1]))
+            behaviorType.append(str(line[2]))
+            time.append(str(line[-1]))
+     
+        buyTime=[];buyItem=[];buyUser=[]
+        cartTime=[];cartItem=[];cartUser=[]
+        collectTime=[];collectItem=[];collectUser=[]
+        clickTime=[];clickItem=[];clickUser=[]
+        for i  in range(len(behaviorType)):
+           if behaviorType[i]== '4':
+                buyTime.append(time[i])
+                buyItem.append(itemId[i])
+                buyUser.append(userId[i])
+           elif behaviorType[i]== '3':
+                cartTime.append(time[i])
+                cartItem.append(itemId[i])
+                cartUser.append(userId[i])
+           elif behaviorType[i]== '2':
+                collectTime.append(time[i])
+                collectItem.append(itemId[i])
+                collectUser.append(userId[i])
+           else:
+                clickTime.append(time[i])
+                clickItem.append(itemId[i])
+                clickUser.append(userId[i]) 
+                
+        lastBuy=getLasttime(buyUser,buyItem,buyTime)
+        lastBuy.to_csv('D:\\tianchi_bigdata\\training_features\\User_Item Features\\user_itemBuyLast.csv')
+        
+        lastCart=getLasttime(cartUser,cartItem,cartTime)
+        lastCart.to_csv('D:\\tianchi_bigdata\\training_features\\User_Item Features\\user_itemCartLast.csv')
+        
+        lastcollect=getLasttime(collectUser,collectItem,collectTime)
+        lastcollect.to_csv('D:\\tianchi_bigdata\\training_features\\User_Item Features\\user_itemCollectLast.csv')
+        
+        lastclick=getLasttime(clickUser,clickItem,clickTime)
+        lastclick.to_csv('D:\\tianchi_bigdata\\training_features\\User_Item Features\\user_itemClickLast.csv')
+        
+        
+
+def getLasttime(user,item,time):
+    # Multiindex
+    pairs=[]
+    pairs.append(user)
+    pairs.append(item)
+    tuples=zip(*pairs)
+    index=pd.MultiIndex.from_tuples(tuples,names=['userid','itemid'])
+    data=[]
+    for j in user:
+        data.append('2014-11-17 00')
+    for i in range(len(user)):
+        if time[i]>data[i]:
+            data[i]=time[i]
+            
+    last=pd.Series(data,index=index)
+    return last
+
+user_itemInteractLast()      
+        
+    
+    
