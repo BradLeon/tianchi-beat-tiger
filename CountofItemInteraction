@@ -1,0 +1,113 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 31 19:40:13 2015
+
+@author: hp
+"""
+
+# -*- coding: cp936 -*-
+import numpy
+import csv
+def CountofItemInteraction():
+        buy='buy';cart='cart';collect='collect';click='click'
+        userId=[]; itemId=[];behaviorType=[]; time=[]
+        fr= open("D:\\tianchi_bigdata\\tianchi_mobile_recommend_train_user\\training_user_set.txt",'rb')     
+        for line in fr.readlines():
+           
+            curLine=line.strip().split('\t')
+            userId.append(str(curLine[0]))  
+            itemId.append(str(curLine[1]))
+            behaviorType.append(str(curLine[2]))
+            time.append(str(curLine[-1]))
+     
+        buyTime=[];buyItem=[]
+        cartTime=[];cartItem=[]
+        collectTime=[];collectItem=[]
+        clickTime=[];clickItem=[]
+        for i  in range(len(behaviorType)):
+           if behaviorType[i]== '4':
+                buyTime.append(time[i])
+                buyItem.append(itemId[i])
+            
+           elif behaviorType[i]== '3':
+                cartTime.append(time[i])
+                cartItem.append(itemId[i])
+               
+           elif behaviorType[i]== '2':
+                collectTime.append(time[i])
+                collectItem.append(itemId[i])
+               
+           else:
+                clickTime.append(time[i])
+                clickItem.append(itemId[i])
+              
+                
+        countOfItemInteraction(buyTime,buyItem,buy)
+        countOfItemInteraction(cartTime,cartItem,cart)
+        countOfItemInteraction(collectTime,collectItem,collect)
+        countOfItemInteraction(clickTime,clickItem,click)
+               
+
+def countOfItemInteraction(listBehaviorTime,listItem,behaviorType):
+        dictOne={}; dictThree={};dictFive={};dictSeven={};dictFourteen={};dictThirty={}
+        for i in range(len(listBehaviorTime)):
+            dictThirty[listItem[i]]=0
+            dictFourteen[listItem[i]]=0
+            dictSeven[listItem[i]]=0
+            dictFive[listItem[i]]=0
+            dictThree[listItem[i]]=0
+            dictOne[listItem[i]]=0
+            
+        for j in range(len(listBehaviorTime)):
+            dictThirty[listItem[j]]+=1
+            if listBehaviorTime[j]>'2014-12-03' and listBehaviorTime[j]<'2014-12-18':
+                dictFourteen[listItem[j]]+=1
+            if listBehaviorTime[j]>'2014-12-10' and listBehaviorTime[j]<'2014-12-18':
+                dictSeven[listItem[j]]+=1
+            if listBehaviorTime[j]>'2014-12-12' and listBehaviorTime[j]<'2014-12-18':
+                dictFive[listItem[j]]+=1
+            if listBehaviorTime[j]>'2014-12-14' and listBehaviorTime[j]<'2014-12-18':
+                dictThree[listItem[j]]+=1    
+            if listBehaviorTime[j]>'2014-12-16' and listBehaviorTime[j]<'2014-12-18':
+                dictOne[listItem[j]]+=1
+
+        listOne=dict_to_list(dictOne)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item'+behaviorType+'InOneday.csv',listOne)
+
+        listThree=dict_to_list(dictThree)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item'+behaviorType+'InThreeday.csv',listThree)
+
+        listFive=dict_to_list(dictFive)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item'+behaviorType+'InFiveday.csv',listFive)
+        
+        listSeven=dict_to_list(dictSeven)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item'+behaviorType+'InSevenday.csv',listSeven)
+
+        listFourteen=dict_to_list(dictFourteen)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item'+behaviorType+'InFourteenday.csv',listFourteen)
+
+        listThirty=dict_to_list(dictThirty)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item'+behaviorType+'InThirtyday.csv',listThirty)
+
+        
+
+def dict_to_list(Dict):         #dict 化为list 型
+    List= []
+    for key, value in Dict.iteritems():
+        if (type(value) is dict):
+            value = dict_to_list(value)
+        List.append([key, value])
+    return List
+
+
+def writerToFile(fileName,List):
+    csv.register_dialect('mydialect',delimiter=']' )
+    myFile=open(fileName,'wb')  
+    myWriter=csv.writer(myFile)    
+    myWriter.writerows(List)
+        
+            
+CountofItemInteraction()        
+            
+        
+    
