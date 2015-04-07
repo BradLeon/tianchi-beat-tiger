@@ -1,0 +1,90 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 31 20:46:45 2015
+
+@author:  Leon
+"""
+import numpy as np
+import csv
+def CountItemBuyDifferentUser():
+        userId=[]; itemId=[]; behaviorType=[]; time=[]
+        dictOne={}; dictThree={};dictFive={};dictSeven={};dictFourteen={};dictThirty={}
+        fr= open("D:\\tianchi_bigdata\\tianchi_mobile_recommend_train_user\\training_user_set.txt",'rb')     
+        for line in fr.readlines():
+           
+            curLine=line.strip().split('\t')
+            userId.append(str(curLine[0]))  
+            itemId.append(str(curLine[1]))
+            behaviorType.append(str(curLine[2]))
+            time.append(str(curLine[-1]))
+     
+        buyTime=[];buyItem=[];buyUser=[]
+        for i  in range(len(behaviorType)):
+           if behaviorType[i]== '4':
+                buyTime.append(time[i])
+                buyItem.append(itemId[i])
+                buyUser.append(userId[i])
+                
+   #initial a dict             
+        for i in range(len(buyItem)):  
+            dictThirty[buyItem[i]]=0
+            dictFourteen[buyItem[i]]=0
+            dictSeven[buyItem[i]]=0
+            dictFive[buyItem[i]]=0
+            dictThree[buyItem[i]]=0
+            dictOne[buyItem[i]]=0    
+
+        for i in range(len(buyUser)):
+            for j in range(len(buyItem)):
+                if buyItem[i]==buyItem[j]:
+                    if buyUser[i]!=buyUser[j]:
+                        dictThirty[buyItem[i]]+=1
+                        if buyTime[j]>'2014-12-03' and buyTime[j]<'2014-12-18':    
+                            dictFourteen[buyItem[i]]+=1
+                            if buyTime[j]>'2014-12-10' and buyTime[j]<'2014-12-18':
+                                dictSeven[buyItem[i]]+=1
+                                if buyTime[j]>'2014-12-12' and buyTime[j]<'2014-12-18':
+                                    dictFive[buyItem[i]]+=1
+                                    if buyTime[j]>'2014-12-14' and buyTime[j]<'2014-12-18':
+                                        dictThree[buyItem[i]]+=1
+                                        if buyTime[j]>'2014-12-16' and buyTime[j]<'2014-12-18':
+                                            dictOne[buyItem[i]]+=1
+                                        
+            
+        ListThirty=dict_to_list(dictThirty)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\CountItemBuyDifferentUserThirtyday.csv',ListThirty)
+        
+        ListFourteen=dict_to_list(dictFourteen)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\CountItemBuyDifferentUserFouteenday.csv',ListFourteen)
+        
+        ListSeven=dict_to_list(dictSeven)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\CountItemBuyDifferentUserSevenday.csv',ListSeven)
+        
+        ListFive=dict_to_list(dictFive)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\CountItemBuyDifferentUserFiveday.csv',ListFive)
+        
+        ListThree=dict_to_list(dictThree)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\CountItemBuyDifferentUserThreeday.csv',ListThree)
+        
+        ListOne=dict_to_list(dictOne)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\CountItemBuyDifferentUserOneday.csv',ListOne)
+        
+             
+        
+        
+def dict_to_list(Dict):         #dict 化为list 型
+    List= []
+    for key, value in Dict.iteritems():
+        if (type(value) is dict):
+            value = dict_to_list(value)
+        List.append([key, value])
+    return List
+
+def writerToFile(fileName,List):
+    csv.register_dialect('mydialect',delimiter=']' )
+    myFile=open(fileName,'wb')  
+    myWriter=csv.writer(myFile)    
+    myWriter.writerows(List)
+
+                
+CountItemBuyDifferentUser()             
