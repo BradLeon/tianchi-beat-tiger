@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 31 19:06:06 2015
+
+@author: Leon
+"""
+import csv
+import pandas as pd
+import numpy as np
+import json
+from collections import defaultdict
+
+
+# read in data
+data = pd.read_csv("D:\\tianchi_bigdata\\tianchi_mobile_recommend_train_user\\training_user_set.csv")
+data2 = data[data.behavior_type==2]
+data3 = data[data.behavior_type==3] # all the behavior of type:add to cart
+data4=data[data.behavior_type==4]
+user_list = set(data.user_id)   # obtain the set of all users
+
+potential_user_category = defaultdict(list)
+interest_user_category= defaultdict(list)
+for user in user_list:
+    user_data = data[data.user_id==user]    # the tables only contains the information of each individual user
+    user_item_category_list = set(user_data.item_category)  # the set contains all categories 'interested' by user
+    for category in user_item_category_list:
+        user_item_in_certain_category = user_data[user_data.item_category==category]
+        if 3 in user_item_in_certain_category.behavior_type.values and 4 not in user_item_in_certain_category.behavior_type.values:
+            potential_user_category[user].append(category)
+        if 4 in user_item_in_certain_category.behavior_type.values :
+            interest_user_category[user].append(category)
+            
+# output this dictionary to a file
+writer = csv.writer(myFile=open('D:\\tianchi_bigdata\\training_features\\potential_user_category.csv', 'wb'))
+for key, value in potential_user_category.items():
+    writer.writerow([key,value])
+    
+writer = csv.writer(open('D:\\tianchi_bigdata\\training_features\\interest_user_category.csv', 'wb'))
+for key, value in interest_user_category.items():
+    writer.writerow([key,value])
+
+    
+# if you want to read this dictionary file
+# reader = csv.reader(open('potential_user_category.csv','rb'))
+# potential_user_category = dict(x for x in reader)
