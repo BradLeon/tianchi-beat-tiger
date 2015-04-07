@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr 07 19:25:40 2015
+
+@author: hp
+"""
+
+import csv
+import numpy as np
+import pandas as pd
+
+def loadData(filename):
+    userId=[]; itemId=[]
+    myFile=file(filename,'rb')
+    reader=csv.reader(myFile)
+    for line in reader:  
+            userId.append(line[0])
+            itemId.append(line[1])
+    return userId,itemId
+
+def loadUser_category(filename):
+    userId=[];category=[]
+    myFile=file(filename,'rb')
+    reader=csv.reader(myFile)
+    for line in reader:
+        userId.append(line[0])
+        category.append(line[-1])
+    return userId,category
+
+def loadItem_category(filename):
+    itemId=[];category=[]
+    myFile=file(filename,'rb')
+    reader=csv.reader(myFile)
+    for line in reader:
+        itemId.append(line[0])
+        category.append(line[-1])
+    return itemId,category
+    
+def ifUser_itemInterest(filename):
+        user,item=loadData(filename)
+        user1,category1=loadUser_category('D:\\tianchi_bigdata\\training_features\\User Features\\User_category\\interest_user_category.csv') 
+        item2,category2=loadItem_category('D:\\tianchi_bigdata\\tianchi_mobile_recommend_train_user\\training_item_set.csv')
+        ifInterest=buildSeries(user,item)
+       # build  user_item to store all the insteresting user_item in same category 
+        user_item=[]
+        for i in range(len(user1)):
+            for j in range(len(item2)):
+                if category2[j] in category1[i]:
+                    user_item.append(zip(user1[i],item2[j]))           
+                    
+        
+        
+        # 1 if dataset in user_item , 0 if not 
+        for i in range(len(ifInterest)):
+            for j in range(len(user_item)):
+                if user[i] in user_item[j] and item[i] in user_item[j]:
+                    ifInterest[i]=1
+        
+        ifInterest.to_csv("D:\\tianchi_bigdata\\training_features\\User_Item Features\\ifUser_itemInterest.csv")
+
+def buildSeries(user,item):
+        pairs=[]
+        pairs.append(user)
+        pairs.append(item)
+        tuples=zip(*pairs)
+        index=pd.MultiIndex.from_tuples(tuples,names=['userid','itemid'])
+        data=[]
+        for j in user:
+             data.append(0)
+        ifInterest=pd.Series(data,index=index)
+        
+        return ifInterest
+
+ifUser_itemInterest('D:\\tianchi_bigdata\\tianchi_mobile_recommend_train_user\\13to17trainingset.csv')
+        
