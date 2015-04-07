@@ -1,0 +1,101 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr 06 11:04:12 2015
+
+@author: hp
+"""
+
+import csv 
+import numpy
+def itemInteractionLasttime():
+        userId=[];ItemId=[]; behaviorType=[]; time=[]
+        fr= open("D:\\tianchi_bigdata\\tianchi_mobile_recommend_train_user\\training_user_set.txt",'rb')     
+        for line in fr.readlines():      
+            curLine=line.strip().split('\t')
+            userId.append(str(curLine[0]))
+            ItemId.append(str(curLine[1]))
+            behaviorType.append(str(curLine[2]))
+            time.append(str(curLine[-1]))
+      
+     
+        buyTime=[];buyItem=[]
+        cartTime=[];cartItem=[]
+        collectTime=[];collectItem=[]
+        clickTime=[];clickItem=[]
+        for i  in range(len(behaviorType)):
+           if behaviorType[i]== '4':
+                buyTime.append(time[i])
+                buyItem.append(ItemId[i]) 
+           elif behaviorType[i]== '3':
+                cartTime.append(time[i])
+                cartItem.append(ItemId[i])
+           elif behaviorType[i]== '2':
+                collectTime.append(time[i])
+                collectItem.append(ItemId[i])
+           else:
+                clickTime.append(time[i])
+                clickItem.append(ItemId[i])
+                
+        print "number of CART",len(cartItem)
+        print "number of collect", len(collectItem)
+        print "number of collect", len(cartItem)
+        print "number of collect", len(clickItem)
+        
+        DictBuy=KeepPairsWithDictMax(buyItem,buyTime)
+        listBuy=dict_to_list(DictBuy)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\ItemBuyLatest.csv',listBuy)
+        
+        
+        DictCart=KeepPairsWithDictMax(cartItem,cartTime)
+        listCart=dict_to_list(DictCart)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\ItemCartLatest.csv',listCart)
+  
+
+        DictCollect=KeepPairsWithDictMax(collectItem,collectTime)
+        listCollect=dict_to_list(DictCollect)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\ItemCollectLatest.csv',listCollect)
+        
+        DictClick=KeepPairsWithDictMax(clickItem,clickTime)
+        listClick=dict_to_list(DictClick)
+        writerToFile('D:\\tianchi_bigdata\\training_features\\Item Features\\ItemClickLatest.csv',listClick)
+
+        
+
+
+def KeepPairsWithDictMax(listA,listB):    #将listB中 对应于同样的listA的值中的最大值， 作为以listA的集合为key的value值，返回dict。
+    setA=set(listA)
+    Dict=dict(zip(setA,listB))     #initial
+    setAA=set()
+    for i in range(len(listA)):
+        if listA[i] in setAA:
+            if listB[i]>Dict[listA[i]]:
+                Dict[listA[i]]=listB[i]
+        else:
+            setAA.add(listA[i])
+            Dict[listA[i]]=listB[i]
+    print len(Dict)
+    return Dict       
+
+
+def DictReverse(DictOld):       #将dict中的 key，value对 转置
+    DictNew={}
+    for key,value in DictOld.iteritems():
+        DictNew[value]=key
+    return DictNew
+
+def dict_to_list(Dict):         #dict 化为list 型
+    List= []
+    for key, value in Dict.iteritems():
+        if (type(value) is dict):
+            value = dict_to_list(value)
+        List.append([key, value])
+    print len(List)
+    return List
+
+def writerToFile(fileName,List):
+    csv.register_dialect('mydialect',delimiter=']' )
+    myFile=open(fileName,'wb')  
+    myWriter=csv.writer(myFile)   
+    myWriter.writerows(List)            
+        
+itemInteractionLasttime()
