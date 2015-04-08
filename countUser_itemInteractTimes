@@ -50,10 +50,11 @@ def countOfItemInteraction(user,item,time,behaviorType):
         pairs.append(user)
         pairs.append(item)
         tuples=zip(*pairs)
+        tuples=list(set(tuples))     #去除重复出现的 userid-itemid对
         index=pd.MultiIndex.from_tuples(tuples,names=['userid','itemid'])
         data=[]
       #initial a Series to store counttimes
-        for j in user:
+        for j in tuples:
              data.append(0)
         countOne=pd.Series(data,index=index)
         countThree=pd.Series(data,index=index)
@@ -68,12 +69,12 @@ def countOfItemInteraction(user,item,time,behaviorType):
                # countFourteen[j]+=1
             #if time[j]>'2014-12-10' and time[j]<'2014-12-18':
              #   countSeven[j]+=1
-            if time[j]>'2014-12-12' and time[j]<'2014-12-18':
-                countFive[j]+=1
+            if time[j]>'2014-12-12' and time[j]<'2014-12-18':   
+                countFive[user[j]]+=1
             if time[j]>'2014-12-14' and time[j]<'2014-12-18':
-                countThree[j]+=1   
+                countThree[user[j]]+=1
             if time[j]>'2014-12-16' and time[j]<'2014-12-18':
-                countOne[j]+=1
+                countOne[user[j]]+=1
         
         countOne.to_csv("D:\\tianchi_bigdata\\training_features\\User_Item Features\\user_item"+behaviorType+"TimesInOneday.csv")
         countThree.to_csv("D:\\tianchi_bigdata\\training_features\\User_Item Features\\user_item"+behaviorType+"TimesInThreeday.csv")
